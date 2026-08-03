@@ -557,7 +557,7 @@ const listConfigurations = list({
         'audio',
         'youtube',
       ],
-      website: 'mirrormedia',
+      website: 'mirrordaily',
     }),
     relation_display: virtual({
       label: '標題（建議字數：28字',

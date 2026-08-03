@@ -347,6 +347,7 @@ const DraftEditorControls = styled.div`
   padding-top: 1rem;
   width: 100%;
   background: rgb(255, 255, 255);
+  position: relative;
 `
 
 const DraftEditorControlsWrapper = styled.div`
@@ -406,6 +407,10 @@ const DraftEditorContainer = styled.div<{ isEnlarged: boolean }>`
           padding-left: 3em;
           padding-right: 3em;
           background: rgba(0, 0, 0, 0.5);
+          /* 直向排列:toolbar 在上、內文填滿剩餘高度,
+             避免內文被強制 100vh 而超出視窗、底部被切掉需捲動 */
+          display: flex;
+          flex-direction: column;
         `
       : ''}
   ${DraftEditorWrapper} {
@@ -413,9 +418,11 @@ const DraftEditorContainer = styled.div<{ isEnlarged: boolean }>`
       isEnlarged
         ? css`
             width: 100%;
-            height: 100%;
+            /* 填滿 container 扣掉 toolbar 後的剩餘空間,自己成為捲動容器 */
+            flex: 1;
+            min-height: 0;
             padding: 0 1rem 0;
-            overflow: scroll;
+            overflow: auto;
           `
         : ''}
   }
@@ -443,7 +450,6 @@ const DraftEditorContainer = styled.div<{ isEnlarged: boolean }>`
       isEnlarged
         ? css`
             max-width: 100%;
-            min-height: 100vh;
             padding-bottom: 0;
           `
         : ''}
@@ -453,9 +459,11 @@ const DraftEditorContainer = styled.div<{ isEnlarged: boolean }>`
 const ButtonGroup = styled.div``
 const EnlargeButtonWrapper = styled.div`
   position: absolute;
-  top: 0;
+  /* 對齊 DraftEditorControls 的 padding-top,讓放大鈕跟按鈕排一樣留上方空間,不貼頂 */
+  top: 1rem;
   right: 0;
   margin: 0;
+  z-index: 20;
 `
 
 type RichTextEditorProps = {
@@ -731,12 +739,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 editorState={editorState}
                 onToggle={toggleInlineStyle}
               />
-              <EnlargeButtonWrapper>
-                <CustomEnlargeButton
-                  onToggle={toggleEnlarge}
-                  isEnlarged={isEnlarged}
-                ></CustomEnlargeButton>
-              </EnlargeButtonWrapper>
             </DraftEditorControlsWrapper>
             <DraftEditorControlsWrapper>
               <CustomLinkButton
@@ -894,6 +896,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 onChange={onChange}
               />
             </DraftEditorControlsWrapper>
+            {/* 放大/縮小鈕獨立於各排按鈕之外,浮在整個 toolbar 右上角,
+                避免被下面幾排(即使被 disable 仍會 render)的按鈕蓋住 */}
+            <EnlargeButtonWrapper>
+              <CustomEnlargeButton
+                onToggle={toggleEnlarge}
+                isEnlarged={isEnlarged}
+              ></CustomEnlargeButton>
+            </EnlargeButtonWrapper>
           </DraftEditorControls>
           <TextEditorWrapper
             onClick={() => {
